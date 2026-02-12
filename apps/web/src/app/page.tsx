@@ -114,7 +114,11 @@ export default function LandingPage() {
             <section className="relative px-6" style={{ paddingTop: 'var(--space-4xl)', paddingBottom: 'var(--space-4xl)' }}>
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-16">
-                        <p className="label mb-4" style={{ color: 'var(--accent)' }}>Funcionalidades</p>
+                        <div className="flex items-center justify-center gap-4 mb-6">
+                            <div style={{ width: '32px', height: '1px', background: 'var(--text-muted)' }} />
+                            <p className="label" style={{ color: 'var(--text-secondary)' }}>Funcionalidades</p>
+                            <div style={{ width: '32px', height: '1px', background: 'var(--text-muted)' }} />
+                        </div>
                         <h2 className="heading-1">
                             Tudo o que precisas,<br />num só lugar.
                         </h2>

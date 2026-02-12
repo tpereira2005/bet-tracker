@@ -336,18 +336,18 @@ body {
    Components
    ────────────────────────────────────────────── */
 
-/* ── Glass (nav) — heavy blur ── */
+/* ── Glass (nav) — near-opaque + heavy blur ── */
 .glass {
-  background: rgba(11, 12, 16, 0.6);
-  backdrop-filter: blur(40px) saturate(1.6);
-  -webkit-backdrop-filter: blur(40px) saturate(1.6);
+  background: rgba(11, 12, 16, 0.92);
+  backdrop-filter: blur(64px) saturate(1.8);
+  -webkit-backdrop-filter: blur(64px) saturate(1.8);
   border-bottom: 1px solid var(--border);
 }
 
 [data-theme="light"] .glass {
-  background: rgba(245, 244, 235, 0.65);
-  backdrop-filter: blur(40px) saturate(1.4);
-  -webkit-backdrop-filter: blur(40px) saturate(1.4);
+  background: rgba(245, 244, 235, 0.92);
+  backdrop-filter: blur(64px) saturate(1.6);
+  -webkit-backdrop-filter: blur(64px) saturate(1.6);
 }
 
 /* ── Semantic colors ── */
