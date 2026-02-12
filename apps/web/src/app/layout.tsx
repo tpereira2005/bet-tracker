@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { instrumentSerif, inter, jetbrainsMono } from '@/lib/fonts';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
@@ -19,15 +20,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="pt" data-theme="dark" suppressHydrationWarning>
-            <head>
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-                    rel="stylesheet"
-                />
-            </head>
+        <html
+            lang="pt"
+            data-theme="dark"
+            suppressHydrationWarning
+            className={`${instrumentSerif.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+        >
             <body className="antialiased">
                 <ThemeProvider>
                     <AuthProvider>
