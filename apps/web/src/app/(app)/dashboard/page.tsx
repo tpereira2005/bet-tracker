@@ -22,7 +22,7 @@ export default async function DashboardPage() {
             const supabase = await createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user?.email) {
-                userName = user.email.split('@')[0];
+                userName = user.email.split('@')[0] ?? 'Utilizador';
             }
         } catch {
             // Supabase not available — continue with defaults
@@ -30,7 +30,7 @@ export default async function DashboardPage() {
     }
 
     return (
-        <div className="space-y-8 animate-[fade-in_0.3s_ease-out]">
+        <div className="space-y-8 page-enter">
             {/* Page Header */}
             <div>
                 <h1 className="heading-1">
