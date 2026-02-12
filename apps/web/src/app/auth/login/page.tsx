@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, Check, X } from 'lucide-react';
 
@@ -27,7 +27,9 @@ type AuthMode = 'login' | 'register' | 'reset';
 
 export default function AuthPage() {
     const router = useRouter();
-    const [mode, setMode] = useState<AuthMode>('login');
+    const searchParams = useSearchParams();
+    const initialMode = (searchParams.get('mode') === 'register' ? 'register' : 'login') as AuthMode;
+    const [mode, setMode] = useState<AuthMode>(initialMode);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');

@@ -59,7 +59,7 @@ export default function LandingPage() {
                         >
                             Entrar
                         </Link>
-                        <Link href="/auth/register" className="btn btn-primary btn-sm">
+                        <Link href="/auth/login?mode=register" className="btn btn-primary btn-sm">
                             Começar Grátis
                         </Link>
                     </div>
@@ -88,7 +88,7 @@ export default function LandingPage() {
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                         <Link
-                            href="/auth/register"
+                            href="/auth/login?mode=register"
                             className="btn btn-accent btn-lg group"
                         >
                             Criar Conta Grátis
@@ -172,7 +172,7 @@ export default function LandingPage() {
                             Cria a tua conta gratuita e começa a analisar as tuas apostas em segundos.
                         </p>
                         <div style={{ position: 'relative' }}>
-                            <Link href="/auth/register" className="btn btn-accent btn-lg">
+                            <Link href="/auth/login?mode=register" className="btn btn-accent btn-lg">
                                 Começar Agora
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
