@@ -1,0 +1,2 @@
+﻿src/app/(app)/layout.tsx(37,13): error TS6133: 'user' is declared but its value is never read.
+src/app/auth/login/page.tsx(4,1): error TS6133: 'Link' is declared but its value is never read.
