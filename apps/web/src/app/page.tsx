@@ -50,7 +50,7 @@ export default function LandingPage() {
                         }}
                     >
                         <Image src="/logo.png" alt="BetTracker" width={28} height={28} />
-                        BetTracker
+                        <span style={{ transform: 'translateY(1px)' }}>BetTracker</span>
                     </Link>
                     <div className="flex items-center gap-4">
                         <Link
