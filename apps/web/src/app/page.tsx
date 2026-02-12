@@ -7,7 +7,6 @@ import {
     Zap,
     ChartPie,
     Upload,
-    Sparkles,
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -20,9 +19,9 @@ export default function LandingPage() {
                     width: '600px',
                     height: '600px',
                     top: '-200px',
-                    right: '-100px',
+                    right: '10%',
                     background: 'var(--accent)',
-                    opacity: 0.06,
+                    opacity: 0.05,
                 }}
             />
             <div
@@ -30,10 +29,10 @@ export default function LandingPage() {
                 style={{
                     width: '400px',
                     height: '400px',
-                    top: '40%',
-                    left: '-150px',
-                    background: '#6366F1',
-                    opacity: 0.04,
+                    top: '50%',
+                    left: '-100px',
+                    background: '#38BDF8',
+                    opacity: 0.03,
                 }}
             />
 
@@ -67,28 +66,25 @@ export default function LandingPage() {
 
             {/* Hero */}
             <section className="relative pt-36 sm:pt-44 px-6" style={{ paddingBottom: 'var(--space-4xl)' }}>
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-5xl mx-auto text-center">
                     {/* Pill tag */}
-                    <div className="pill mb-8">
-                        <Sparkles className="w-4 h-4" style={{ opacity: 0.8 }} />
-                        <span>Plataforma de Análise Profissional</span>
+                    <div className="pill mb-8 mx-auto" style={{ width: 'fit-content' }}>
+                        Plataforma de Análise Profissional
                     </div>
 
-                    <h1 className="heading-hero mb-6">
-                        Controla as tuas<br />
-                        apostas como<br />
-                        um profissional.
+                    <h1 className="heading-hero mb-6 mx-auto" style={{ maxWidth: '780px' }}>
+                        Controla as tuas apostas como um profissional.
                     </h1>
 
                     <p
-                        className="body-lg max-w-lg mb-10"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="body-lg mx-auto mb-10"
+                        style={{ color: 'var(--text-secondary)', maxWidth: '520px' }}
                     >
                         Analisa depósitos, levantamentos, ROI e tendências.
                         Insights automáticos e gráficos que te ajudam a tomar melhores decisões.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-start gap-3">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                         <Link
                             href="/auth/register"
                             className="btn btn-accent btn-lg group"
@@ -199,7 +195,7 @@ export default function LandingPage() {
                         BetTracker
                     </span>
                     <span className="body-sm" style={{ color: 'var(--text-muted)' }}>
-                        © {new Date().getFullYear()} · Feito com dedicação 🇵🇹
+                        © {new Date().getFullYear()} · Feito com dedicação em Portugal
                     </span>
                 </div>
             </footer>
