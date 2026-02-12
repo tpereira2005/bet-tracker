@@ -7,61 +7,91 @@ import {
     Zap,
     ChartPie,
     Upload,
+    Sparkles,
 } from 'lucide-react';
 
 export default function LandingPage() {
     return (
-        <div className="min-h-dvh" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="min-h-dvh relative overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
+            {/* Decorative glow orbs */}
+            <div
+                className="glow-orb"
+                style={{
+                    width: '600px',
+                    height: '600px',
+                    top: '-200px',
+                    right: '-100px',
+                    background: 'var(--accent)',
+                    opacity: 0.06,
+                }}
+            />
+            <div
+                className="glow-orb"
+                style={{
+                    width: '400px',
+                    height: '400px',
+                    top: '40%',
+                    left: '-150px',
+                    background: '#6366F1',
+                    opacity: 0.04,
+                }}
+            />
+
             {/* Navigation */}
             <nav className="fixed top-0 left-0 right-0 z-50 glass">
-                <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <span
-                        className="text-xl"
-                        style={{ fontFamily: 'var(--font-heading), Instrument Serif, serif' }}
+                <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <Link
+                        href="/"
+                        className="text-lg tracking-tight"
+                        style={{
+                            fontFamily: 'var(--font-heading), Instrument Serif, serif',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                        }}
                     >
                         BetTracker
-                    </span>
-                    <div className="flex items-center gap-6">
+                    </Link>
+                    <div className="flex items-center gap-4">
                         <Link
                             href="/auth/login"
-                            className="body-sm hover:opacity-70 transition-opacity"
-                            style={{ color: 'var(--text-secondary)' }}
+                            className="btn btn-ghost btn-sm"
                         >
                             Entrar
                         </Link>
                         <Link href="/auth/register" className="btn btn-primary btn-sm">
-                            Começar
+                            Começar Grátis
                         </Link>
                     </div>
                 </div>
             </nav>
 
             {/* Hero */}
-            <section
-                className="pt-40 pb-24 px-6"
-                style={{ paddingBottom: 'var(--space-4xl)', paddingTop: '160px' }}
-            >
+            <section className="relative pt-36 sm:pt-44 px-6" style={{ paddingBottom: 'var(--space-4xl)' }}>
                 <div className="max-w-4xl mx-auto">
-                    <p className="label mb-6" style={{ color: 'var(--accent)' }}>
-                        Análise Profissional de Apostas
-                    </p>
+                    {/* Pill tag */}
+                    <div className="pill mb-8">
+                        <Sparkles className="w-4 h-4" style={{ opacity: 0.8 }} />
+                        <span>Plataforma de Análise Profissional</span>
+                    </div>
 
-                    <h1 className="heading-hero mb-8">
-                        Controla as tuas apostas como um profissional.
+                    <h1 className="heading-hero mb-6">
+                        Controla as tuas<br />
+                        apostas como<br />
+                        um profissional.
                     </h1>
 
                     <p
-                        className="body-lg max-w-xl mb-12"
+                        className="body-lg max-w-lg mb-10"
                         style={{ color: 'var(--text-secondary)' }}
                     >
-                        Analisa depósitos, levantamentos, ROI e tendências. Insights automáticos e
-                        gráficos que te ajudam a tomar melhores decisões.
+                        Analisa depósitos, levantamentos, ROI e tendências.
+                        Insights automáticos e gráficos que te ajudam a tomar melhores decisões.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-start gap-4">
+                    <div className="flex flex-col sm:flex-row items-start gap-3">
                         <Link
                             href="/auth/register"
-                            className="btn btn-primary btn-lg group"
+                            className="btn btn-accent btn-lg group"
                         >
                             Criar Conta Grátis
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -74,33 +104,27 @@ export default function LandingPage() {
             </section>
 
             {/* Stats Row */}
-            <section
-                className="px-6"
-                style={{ paddingTop: 'var(--space-3xl)', paddingBottom: 'var(--space-3xl)' }}
-            >
-                <div className="max-w-5xl mx-auto">
-                    <div className="divider mb-12" />
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-8">
+            <section className="relative px-6" style={{ paddingTop: 'var(--space-3xl)', paddingBottom: 'var(--space-3xl)' }}>
+                <div className="max-w-4xl mx-auto">
+                    <div className="grid grid-cols-3 gap-0">
                         <StatBlock number="9" label="KPIs em tempo real" />
-                        <StatBlock number="5" label="Tipos de gráficos" />
+                        <StatBlock number="5" label="Gráficos interativos" />
                         <StatBlock number="∞" label="Transações por perfil" />
                     </div>
-                    <div className="divider mt-12" />
                 </div>
             </section>
 
             {/* Features */}
-            <section
-                className="px-6"
-                style={{ paddingTop: 'var(--space-4xl)', paddingBottom: 'var(--space-4xl)' }}
-            >
+            <section className="relative px-6" style={{ paddingTop: 'var(--space-4xl)', paddingBottom: 'var(--space-4xl)' }}>
                 <div className="max-w-5xl mx-auto">
-                    <p className="label mb-4">Funcionalidades</p>
-                    <h2 className="heading-1 mb-16">
-                        Tudo o que precisas,<br />num só lugar.
-                    </h2>
+                    <div className="text-center mb-16">
+                        <p className="label mb-4" style={{ color: 'var(--accent)' }}>Funcionalidades</p>
+                        <h2 className="heading-1">
+                            Tudo o que precisas,<br />num só lugar.
+                        </h2>
+                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-px" style={{ background: 'var(--border)' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <FeatureCard
                             icon={<TrendingUp className="w-5 h-5" />}
                             title="Dashboard Completo"
@@ -136,37 +160,46 @@ export default function LandingPage() {
             </section>
 
             {/* CTA */}
-            <section
-                className="px-6"
-                style={{ paddingTop: 'var(--space-4xl)', paddingBottom: 'var(--space-4xl)' }}
-            >
-                <div className="max-w-3xl mx-auto text-center">
-                    <h2 className="heading-1 mb-4">Pronto para começar?</h2>
-                    <p className="body-lg mb-10" style={{ color: 'var(--text-secondary)' }}>
-                        Cria a tua conta gratuita e começa a analisar as tuas apostas em segundos.
-                    </p>
-                    <Link href="/auth/register" className="btn btn-primary btn-lg">
-                        Começar Agora
-                        <ArrowRight className="w-4 h-4" />
-                    </Link>
+            <section className="relative px-6" style={{ paddingTop: 'var(--space-3xl)', paddingBottom: 'var(--space-4xl)' }}>
+                <div className="max-w-3xl mx-auto">
+                    <div className="cta-card text-center" style={{ padding: 'clamp(48px, 6vw, 80px) clamp(24px, 4vw, 56px)' }}>
+                        <h2 className="heading-1 mb-4" style={{ position: 'relative' }}>
+                            Pronto para começar?
+                        </h2>
+                        <p className="body-lg mb-10" style={{ color: 'var(--text-secondary)', position: 'relative' }}>
+                            Cria a tua conta gratuita e começa a analisar as tuas apostas em segundos.
+                        </p>
+                        <div style={{ position: 'relative' }}>
+                            <Link href="/auth/register" className="btn btn-accent btn-lg">
+                                Começar Agora
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             {/* Footer */}
             <footer
-                className="px-6"
+                className="relative px-6"
                 style={{
                     paddingTop: 'var(--space-lg)',
                     paddingBottom: 'var(--space-lg)',
                     borderTop: '1px solid var(--border)',
                 }}
             >
-                <div className="max-w-5xl mx-auto flex items-center justify-between">
-                    <span className="body-sm" style={{ color: 'var(--text-muted)' }}>
-                        BetTracker © {new Date().getFullYear()}
+                <div className="max-w-6xl mx-auto flex items-center justify-between">
+                    <span
+                        className="text-sm"
+                        style={{
+                            fontFamily: 'var(--font-heading), Instrument Serif, serif',
+                            color: 'var(--text-muted)',
+                        }}
+                    >
+                        BetTracker
                     </span>
                     <span className="body-sm" style={{ color: 'var(--text-muted)' }}>
-                        Feito com dedicação 🇵🇹
+                        © {new Date().getFullYear()} · Feito com dedicação 🇵🇹
                     </span>
                 </div>
             </footer>
@@ -178,8 +211,8 @@ export default function LandingPage() {
 
 function StatBlock({ number, label }: { number: string; label: string }) {
     return (
-        <div className="text-center sm:text-left">
-            <div className="number-hero mb-2" style={{ color: 'var(--text-primary)' }}>
+        <div className="stat-block" style={{ padding: 'var(--space-lg) var(--space-md)' }}>
+            <div className="number-hero mb-3" style={{ color: 'var(--text-primary)' }}>
                 {number}
             </div>
             <p className="label">{label}</p>
@@ -197,11 +230,23 @@ function FeatureCard({
     description: string;
 }) {
     return (
-        <div className="feature-card p-8 transition-colors duration-200">
-            <div className="flex items-center gap-3 mb-4">
-                <div style={{ color: 'var(--text-muted)' }}>{icon}</div>
-                <h3 className="heading-4">{title}</h3>
+        <div
+            className="feature-card"
+            style={{ padding: 'var(--space-lg)' }}
+        >
+            <div
+                className="flex items-center justify-center mb-5"
+                style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'var(--accent-subtle)',
+                    color: 'var(--accent)',
+                }}
+            >
+                {icon}
             </div>
+            <h3 className="heading-4 mb-2">{title}</h3>
             <p className="body-sm" style={{ color: 'var(--text-secondary)' }}>
                 {description}
             </p>
