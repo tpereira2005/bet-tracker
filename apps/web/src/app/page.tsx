@@ -115,9 +115,9 @@ export default function LandingPage() {
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-16">
                         <div className="flex items-center justify-center gap-4 mb-6">
-                            <div style={{ width: '32px', height: '1px', background: 'var(--text-muted)' }} />
-                            <p className="label" style={{ color: 'var(--text-secondary)' }}>Funcionalidades</p>
-                            <div style={{ width: '32px', height: '1px', background: 'var(--text-muted)' }} />
+                            <div style={{ width: '32px', height: '1px', background: 'var(--accent)' }} />
+                            <p className="label" style={{ color: 'var(--accent)', fontSize: '0.8125rem' }}>Funcionalidades</p>
+                            <div style={{ width: '32px', height: '1px', background: 'var(--accent)' }} />
                         </div>
                         <h2 className="heading-1">
                             Tudo o que precisas,<br />num só lugar.
