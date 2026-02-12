@@ -20,7 +20,10 @@ const ERROR_TRANSLATIONS: Record<string, string> = {
 };
 
 function translateError(msg: string): string {
-    return ERROR_TRANSLATIONS[msg] ?? msg;
+    const key = Object.keys(ERROR_TRANSLATIONS).find(
+        (k) => k.toLowerCase() === msg.toLowerCase()
+    );
+    return key ? ERROR_TRANSLATIONS[key]! : msg;
 }
 
 type AuthMode = 'login' | 'register' | 'reset';
@@ -61,14 +64,14 @@ export default function AuthPage() {
                     setLoading(false);
                     return;
                 }
-                if (passwordStrength.level === 'weak') {
-                    setError('A password é demasiado fraca. Usa pelo menos 8 caracteres com letras e números.');
-                    setLoading(false);
-                    return;
-                }
-                const { error: err } = await supabase.auth.signUp({ email, password });
+                const { data, error: err } = await supabase.auth.signUp({ email, password });
                 if (err) throw err;
-                setSuccess('Conta criada! Verifica o teu email para confirmar o registo.');
+                // If email confirmation is disabled, Supabase returns a session immediately
+                if (data.session) {
+                    router.push('/dashboard');
+                } else {
+                    setSuccess('Conta criada! Verifica o teu email para confirmar o registo.');
+                }
             } else if (mode === 'reset') {
                 const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
                     redirectTo: `${window.location.origin}/auth/reset-password`,

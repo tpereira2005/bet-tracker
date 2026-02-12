@@ -10,6 +10,8 @@ import {
     Receipt,
     TrendingUp,
     Users,
+    GitCompareArrows,
+    Target,
     Settings,
     LogOut,
     Sun,
@@ -21,11 +23,19 @@ const NAV_ITEMS = [
     { href: '/transactions', label: 'Transações', icon: Receipt },
     { href: '/analytics', label: 'Análise', icon: TrendingUp },
     { href: '/profiles', label: 'Perfis', icon: Users },
+    { href: '/compare', label: 'Comparar', icon: GitCompareArrows },
+    { href: '/goals', label: 'Objetivos', icon: Target },
     { href: '/settings', label: 'Definições', icon: Settings },
 ];
 
-/* Only show first 5 items in mobile bottom bar */
-const MOBILE_TABS = NAV_ITEMS.slice(0, 5);
+/* Show core items in mobile bottom bar (5 max for ergonomics) */
+const MOBILE_TABS = [
+    NAV_ITEMS[0]!, // Dashboard
+    NAV_ITEMS[1]!, // Transações
+    NAV_ITEMS[2]!, // Análise
+    NAV_ITEMS[3]!, // Perfis
+    NAV_ITEMS[6]!, // Definições
+];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();

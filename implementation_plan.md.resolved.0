@@ -1,0 +1,623 @@
+# BetTracker — Complete Architecture & Implementation Plan
+
+> Professional betting analytics platform — full rebuild from scratch with web (Next.js) and mobile (React Native/Expo) channels.
+
+---
+
+## 1. Technology Stack
+
+### Chosen Stack with Justifications
+
+| Layer | Choice | Why |
+|---|---|---|
+| **Monorepo** | **Turborepo + pnpm** | Fastest monorepo tool, native caching, minimal config vs Nx. pnpm for disk-efficient hoisting. |
+| **Web Frontend** | **Next.js 15** (App Router) | SSR/SSG for SEO on landing + share pages, server components for DB queries, middleware for auth, built-in image optimization. |
+| **Mobile** | **React Native + Expo** (SDK 52) | Shares TypeScript + core logic with web. Expo simplifies build/deploy without Xcode config pain. |
+| **Backend/DB** | **Supabase** (Postgres 15 + Auth + Edge Functions + Realtime) | Stays consistent with your prior experience, RLS for multi-tenancy, built-in auth, zero cost for personal use. |
+| **ORM** | **Drizzle ORM** | Type-safe SQL, zero overhead, migrations from schema, works on Edge/Serverless. Better DX than raw Supabase client for complex queries. |
+| **Charting** | **Recharts** (web) + **Victory Native** (mobile) | Recharts: proven in your existing app, SSR-compatible. Victory Native: purpose-built for RN with Skia rendering. |
+| **State** | **Zustand** + **TanStack Query v5** | Zustand for UI state (theme, profile selection). TanStack Query for server state (caching, pagination, refetching). |
+| **Styling** | **Tailwind CSS v4** (web) + **NativeWind v4** (mobile) | Utility-first with design tokens, dark mode via `dark:` prefix, shared theme config between platforms. You explicitly allowed Tailwind. |
+| **Validation** | **Zod** | Runtime + compile-time type safety, composable schemas, Drizzle integration. |
+| **i18n** | **next-intl** (web) + **i18next** (mobile) | next-intl: App Router native. i18next: React Native standard. Shared JSON translation files. |
+| **Testing** | **Vitest** + **React Testing Library** + **Playwright** | Vitest for unit/integration. Playwright for E2E browser tests. RTL for component tests. |
+| **CI/CD** | **GitHub Actions** | Free for public repos, Vercel deploy on push, type-check + lint + test gates. |
+| **Error Tracking** | **Sentry** (free tier) | Both web and RN SDKs, source maps, session replay. |
+| **Analytics** | **Vercel Analytics** + **PostHog** (optional) | Vercel: zero-config web vitals. PostHog: privacy-friendly product analytics. |
+
+### Packages & Dependencies (key ones)
+
+```
+# Core shared
+zod, drizzle-orm, date-fns, papaparse
+
+# Web
+next@15, react@19, tailwindcss@4, recharts, @tanstack/react-query,
+zustand, next-intl, @supabase/ssr, html2canvas, jspdf, qrcode.react,
+lucide-react, framer-motion
+
+# Mobile
+expo@~52, react-native, nativewind@4, victory-native, @shopify/react-native-skia,
+expo-router, @supabase/supabase-js, expo-secure-store
+
+# Dev
+turborepo, typescript@5.7, vitest, @testing-library/react,
+playwright, eslint, prettier, drizzle-kit, @sentry/nextjs
+```
+
+---
+
+## 2. Project Structure
+
+```
+bet-tracker/
+├── apps/
+│   ├── web/                          # Next.js 15 (App Router)
+│   │   ├── src/
+│   │   │   ├── app/                  # App Router pages
+│   │   │   │   ├── (auth)/           # Auth group (login, register, reset)
+│   │   │   │   ├── (app)/            # Authenticated group
+│   │   │   │   │   ├── dashboard/
+│   │   │   │   │   ├── transactions/
+│   │   │   │   │   ├── analytics/
+│   │   │   │   │   ├── profiles/
+│   │   │   │   │   ├── compare/
+│   │   │   │   │   ├── goals/
+│   │   │   │   │   └── settings/
+│   │   │   │   ├── share/[id]/       # Public shared report
+│   │   │   │   ├── layout.tsx
+│   │   │   │   └── page.tsx          # Landing page
+│   │   │   ├── components/           # Web-specific components
+│   │   │   │   ├── charts/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── layout/           # Sidebar, Header, Footer
+│   │   │   │   └── upload/
+│   │   │   ├── hooks/                # Web-specific hooks
+│   │   │   ├── lib/                  # Supabase client, middleware helpers
+│   │   │   └── styles/               # Global CSS, Tailwind config
+│   │   ├── public/
+│   │   │   ├── manifest.json
+│   │   │   └── sw.js
+│   │   ├── messages/                 # i18n JSON files (pt.json, en.json)
+│   │   ├── next.config.ts
+│   │   ├── tailwind.config.ts
+│   │   └── package.json
+│   │
+│   └── mobile/                       # Expo + React Native
+│       ├── app/                      # Expo Router file-based routing
+│       ├── components/
+│       ├── hooks/
+│       ├── lib/
+│       └── package.json
+│
+├── packages/
+│   ├── core/                         # Shared business logic
+│   │   ├── src/
+│   │   │   ├── calculations/         # KPI calculations, statistics
+│   │   │   │   ├── statistics.ts
+│   │   │   │   ├── insights.ts
+│   │   │   │   ├── streaks.ts
+│   │   │   │   └── mom.ts
+│   │   │   ├── parsers/              # CSV parsers (Factory pattern)
+│   │   │   │   ├── parser-factory.ts
+│   │   │   │   ├── betano-parser.ts
+│   │   │   │   ├── generic-parser.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── validators/           # Zod schemas
+│   │   │   │   ├── transaction.ts
+│   │   │   │   ├── profile.ts
+│   │   │   │   └── user.ts
+│   │   │   ├── formatters/           # Currency, date, percentage
+│   │   │   ├── types/                # Shared TypeScript types
+│   │   │   │   └── index.ts
+│   │   │   └── index.ts              # Barrel export
+│   │   ├── __tests__/
+│   │   └── package.json
+│   │
+│   ├── database/                     # Drizzle schema + migrations + queries
+│   │   ├── src/
+│   │   │   ├── schema/               # Drizzle table definitions
+│   │   │   │   ├── users.ts
+│   │   │   │   ├── profiles.ts
+│   │   │   │   ├── transactions.ts
+│   │   │   │   ├── platforms.ts
+│   │   │   │   └── shared-reports.ts
+│   │   │   ├── queries/              # Repository-pattern query functions
+│   │   │   │   ├── transactions.ts
+│   │   │   │   ├── profiles.ts
+│   │   │   │   └── statistics.ts
+│   │   │   ├── migrations/
+│   │   │   └── seed.ts               # Seed with real CSV data
+│   │   └── package.json
+│   │
+│   ├── ui/                           # Shared design system tokens
+│   │   ├── src/
+│   │   │   ├── tokens/               # Colors, spacing, typography, radii
+│   │   │   ├── types/                # Component prop types
+│   │   │   └── index.ts
+│   │   └── package.json
+│   │
+│   └── config/                       # Shared ESLint, TS, Prettier configs
+│       ├── eslint/
+│       ├── typescript/
+│       └── package.json
+│
+├── supabase/                         # Supabase project config
+│   ├── migrations/
+│   ├── functions/                    # Edge Functions
+│   │   ├── generate-report/
+│   │   └── share-report/
+│   └── config.toml
+│
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml                    # Lint + typecheck + test
+│   │   └── deploy.yml                # Vercel deploy
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── ISSUE_TEMPLATE/
+│
+├── turbo.json
+├── pnpm-workspace.yaml
+├── package.json                      # Root workspace
+├── .env.example
+├── .gitignore
+├── README.md
+├── CHANGELOG.md
+└── LICENSE
+```
+
+---
+
+## 3. Database Schema
+
+### Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    USERS ||--o{ PROFILES : "has many"
+    PROFILES ||--o{ TRANSACTIONS : "has many"
+    PLATFORMS ||--o{ TRANSACTIONS : "source"
+    USERS ||--o{ SHARED_REPORTS : "creates"
+    PROFILES ||--o{ GOALS : "targets"
+
+    USERS {
+        uuid id PK
+        text email
+        text display_name
+        text preferred_locale
+        text preferred_theme
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    PROFILES {
+        uuid id PK
+        uuid user_id FK
+        text name
+        boolean is_default
+        int sort_order
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    PLATFORMS {
+        uuid id PK
+        text name
+        text slug
+        text icon_url
+        jsonb parser_config
+        timestamptz created_at
+    }
+
+    TRANSACTIONS {
+        uuid id PK
+        uuid profile_id FK
+        uuid platform_id FK
+        date transaction_date
+        text transaction_type
+        numeric amount
+        text raw_line
+        text import_batch_id
+        timestamptz created_at
+    }
+
+    GOALS {
+        uuid id PK
+        uuid profile_id FK
+        text title
+        text goal_type
+        numeric target_value
+        date start_date
+        date end_date
+        boolean is_active
+        timestamptz created_at
+    }
+
+    SHARED_REPORTS {
+        uuid id PK
+        uuid user_id FK
+        uuid profile_id FK
+        text slug
+        text title
+        jsonb report_config
+        boolean is_active
+        timestamptz expires_at
+        timestamptz created_at
+    }
+```
+
+### SQL Schema (Drizzle will generate this)
+
+**Key design decisions:**
+
+1. **`users` extends Supabase `auth.users`** — We store app-specific user preferences in a separate `public.users` table linked to `auth.users.id`. Created automatically via trigger on signup.
+
+2. **`transactions.raw_line`** — Stores the original CSV line for auditability and re-parsing.
+
+3. **`transactions.import_batch_id`** — Groups transactions from a single upload for undo/rollback.
+
+4. **`platforms.parser_config`** — JSON config for each platform's CSV format (delimiter, header mappings, date format). Makes new platform support data-driven.
+
+5. **Indexes:**
+   - `transactions(profile_id, transaction_date)` — Fast filtered queries
+   - `transactions(profile_id, transaction_type)` — Type filtering
+   - `transactions(import_batch_id)` — Batch operations
+   - `shared_reports(slug)` — Public URL lookup
+   - Unique constraint: `transactions(profile_id, transaction_date, transaction_type, amount)` — Duplicate detection
+
+### Row Level Security (RLS)
+
+```sql
+-- Users can only see their own data
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "users_own_profiles" ON profiles
+  USING (user_id = auth.uid());
+
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "users_own_transactions" ON transactions
+  USING (profile_id IN (
+    SELECT id FROM profiles WHERE user_id = auth.uid()
+  ));
+
+ALTER TABLE goals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "users_own_goals" ON goals
+  USING (profile_id IN (
+    SELECT id FROM profiles WHERE user_id = auth.uid()
+  ));
+
+-- Shared reports: owner can CRUD, public can SELECT active ones
+ALTER TABLE shared_reports ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "owner_manages_reports" ON shared_reports
+  USING (user_id = auth.uid());
+CREATE POLICY "public_reads_active_reports" ON shared_reports
+  FOR SELECT USING (is_active = true AND (expires_at IS NULL OR expires_at > now()));
+```
+
+---
+
+## 4. Design System
+
+### Color Palette
+
+| Token | Dark Mode | Light Mode | Usage |
+|---|---|---|---|
+| `--bg-primary` | `#0A0B14` | `#F8F9FC` | Page background |
+| `--bg-card` | `#13141F` | `#FFFFFF` | Card surfaces |
+| `--bg-card-hover` | `#1A1B2E` | `#F0F1F5` | Card hover state |
+| `--border` | `rgba(255,255,255,0.06)` | `rgba(0,0,0,0.08)` | Dividers, borders |
+| `--text-primary` | `#E8E9F0` | `#1A1B2E` | Headings, values |
+| `--text-secondary` | `#8B8D9E` | `#6B6D7E` | Descriptions, labels |
+| `--accent-emerald` | `#34D399` | `#059669` | Positive / Withdrawals |
+| `--accent-rose` | `#F87171` | `#DC2626` | Negative / Deposits |
+| `--accent-violet` | `#8B5CF6` | `#7C3AED` | Primary actions, branding |
+| `--accent-amber` | `#FBBF24` | `#D97706` | Warnings |
+| `--accent-sky` | `#38BDF8` | `#0284C7` | Info, links |
+| `--gradient-brand` | `violet-500 → indigo-500 → sky-500` | Same | Logo, CTAs |
+
+### Typography
+
+| Role | Font | Weight | Size |
+|---|---|---|---|
+| Headings | **Inter** | 700 | 24–36px |
+| Body | **Inter** | 400/500 | 14–16px |
+| Numbers/Data | **JetBrains Mono** | 500 | 14–20px |
+| Caption | **Inter** | 400 | 12px |
+
+### Component Variants (Design System)
+
+All design tokens are defined in `packages/ui/src/tokens/` as plain TypeScript objects (no React dependency). Both web and mobile consume these tokens.
+
+Key components built in `apps/web/src/components/`:
+- `StatCard` — hero + compact variants, 5 color types
+- `ChartCard` — container with title, subtitle, export button
+- `DataTable` — sortable columns, filters, pagination, empty state
+- `Badge` — semantic colors (success, danger, warning, info)
+- `Button` — primary, secondary, ghost, danger; sizes sm/md/lg
+- `Input` — text, password (toggle), date, file; with validation states
+- `Modal` — portal-based, animated, keyboard trap, close on Escape
+- `Dropdown` — portal-rendered, auto-positioning
+- `Sidebar` — collapsible navigation with icons and active state
+- `Skeleton` — shimmer loaders per component type
+- `Toast` — notification system with types and auto-dismiss
+
+---
+
+## 5. Navigation & Page Architecture
+
+### Authenticated Layout
+
+```
+┌──────────────────────────────────────────────────┐
+│  Header: Logo · Search · Profile · Theme · Menu  │
+├──────────┬───────────────────────────────────────┤
+│          │                                       │
+│ Sidebar  │          Main Content Area            │
+│          │                                       │
+│ Dashboard│         (page-specific)               │
+│ Transact.│                                       │
+│ Analytics│                                       │
+│ Profiles │                                       │
+│ Compare  │                                       │
+│ Goals    │                                       │
+│ Settings │                                       │
+│          │                                       │
+├──────────┴───────────────────────────────────────┤
+│  Footer (minimal)                                │
+└──────────────────────────────────────────────────┘
+```
+
+### Route Map
+
+| Route | Page | Auth | Layout |
+|---|---|---|---|
+| `/` | Landing page (marketing) | No | Public |
+| `/auth/login` | Login | No | Auth |
+| `/auth/register` | Register | No | Auth |
+| `/auth/reset-password` | Reset password | No | Auth |
+| `/dashboard` | Main dashboard (KPIs + summary charts) | Yes | App |
+| `/transactions` | Full transaction table | Yes | App |
+| `/analytics` | Detailed charts + insights | Yes | App |
+| `/profiles` | Profile management | Yes | App |
+| `/compare` | Profile comparison | Yes | App |
+| `/goals` | Goals & tracking | Yes | App |
+| `/settings` | User settings, exports, theme, language | Yes | App |
+| `/share/[slug]` | Public read-only report | No | Minimal |
+
+---
+
+## 6. Feature Implementation Details
+
+### 6.1 CSV Parser (Factory Pattern)
+
+```typescript
+// packages/core/src/parsers/parser-factory.ts
+interface CSVParser {
+  name: string;
+  detect(headers: string[], sample: string[][]): boolean;
+  parse(raw: string): ParseResult;
+}
+
+// Auto-detection flow:
+// 1. Try each registered parser's detect()
+// 2. First match wins
+// 3. Fallback to GenericParser with user-assisted mapping
+```
+
+**Registered parsers:**
+- `BetanoParser` — Handles `Date;Tipe;Vaule` with `;` delimiter, comma decimals
+- `GenericParser` — Best-effort: detects delimiter, maps columns by patterns
+- Future: `BetclicParser`, `Bet365Parser`, etc.
+
+### 6.2 Calculation Engine (Pure Functions)
+
+All calculations in `packages/core/src/calculations/`:
+- **`statistics.ts`** — Total deposits/withdrawals, net result, ROI, averages, win rate
+- **`insights.ts`** — Strategy pattern: each insight generator implements `InsightGenerator` interface. Generators: PerformanceGen, PatternGen, RecommendationGen
+- **`streaks.ts`** — Consecutive positive/negative months, current/best/worst streak
+- **`mom.ts`** — Month-over-month percentage changes
+
+All functions are **pure** (no side effects, no DB calls) and independently testable.
+
+### 6.3 Server-Side Pagination
+
+Transactions are **not** loaded entirely into memory:
+
+```typescript
+// packages/database/src/queries/transactions.ts
+async function getTransactions(params: {
+  profileId: string;
+  page: number;
+  pageSize: number;
+  sortBy: 'date' | 'type' | 'amount';
+  sortOrder: 'asc' | 'desc';
+  typeFilter?: 'Deposit' | 'Withdrawal';
+  dateFrom?: Date;
+  dateTo?: Date;
+}): Promise<PaginatedResult<Transaction>>
+```
+
+KPI calculations use **aggregation queries** instead of loading all rows.
+
+### 6.4 Export System
+
+Rebuilt from scratch with cleaner architecture:
+- **PDF**: Server-generated using `@react-pdf/renderer` (no html2canvas hacks) for structured layout with branding
+- **PNG**: `html2canvas` for visual capture (kept for screenshot-style exports)
+- **CSV**: Server-side generation with proper UTF-8 BOM and configurable columns
+- **Individual chart PNG**: Offscreen render at 2x scale (same proven approach)
+
+### 6.5 Shared Reports
+
+```
+User creates report → Generates unique slug → Stores config in shared_reports
+Public URL: /share/{slug}
+Report renders with:
+  - KPI summary cards
+  - Cumulative chart
+  - Monthly results chart
+  - Date range shown
+  - "Powered by BetTracker" branding
+  - QR code pointing to the same URL
+No authentication required to view.
+```
+
+### 6.6 Theme System
+
+- Dark mode as **default**
+- Tailwind `dark:` utilities + CSS custom properties
+- `data-theme` attribute on `<html>` for CSS access
+- Persisted in Supabase `users.preferred_theme` + localStorage for instant load
+- System theme detection via `prefers-color-scheme` as initial fallback
+
+### 6.7 PWA
+
+- Service Worker with **Workbox** (cache-first for assets, network-first for API)
+- Web App Manifest with proper icons (192, 512, maskable)
+- Installable prompt handling
+- Offline fallback page
+
+---
+
+## 7. Branding Suggestion
+
+> [!TIP]
+> **App Name: BetTracker** — Clean, descriptive, memorable. Alternatives considered: ProfitPulse, BetLedger, StakeStats.
+
+**Logo concept:** A stylized upward-trending chart line forming a "B" or a checkmark, in the violet-to-sky gradient. Favicon: simplified chart icon.
+
+---
+
+## 8. Phased Development Roadmap
+
+### Phase 0 — Foundation (~2-3 sessions)
+
+| Step | Details |
+|---|---|
+| 1 | Initialize monorepo with `turbo init`, pnpm workspaces |
+| 2 | Create `packages/config` with shared tsconfig, eslint, prettier |
+| 3 | Create `packages/core` with types, validators (Zod), formatters |
+| 4 | Create `packages/database` with Drizzle schema + initial migration |
+| 5 | Initialize Next.js 15 app in `apps/web` with Tailwind v4 |
+| 6 | Setup Supabase project: apply migration, enable RLS, configure Auth |
+| 7 | Implement Auth pages (login, register, reset) with full validation |
+| 8 | Build app layout shell (sidebar, header, responsive) |
+| 9 | Design system tokens + key base components |
+| 10 | Landing page (public, SEO-optimized) |
+| 11 | GitHub repo with README, LICENSE, .gitignore, CI workflow |
+
+### Phase 1 — Core (~2 sessions)
+
+| Step | Details |
+|---|---|
+| 1 | CSV parser factory + BetanoParser + GenericParser |
+| 2 | Upload page with drag & drop, profile selection, validation feedback |
+| 3 | Reload/incremental upload with conflict detection |
+| 4 | Dashboard page with 9 KPI cards |
+| 5 | Cumulative balance chart |
+| 6 | Transaction table with server-side pagination, sorting, filters |
+
+### Phase 2 — Analytics (~2 sessions)
+
+| Step | Details |
+|---|---|
+| 1 | Monthly results bar chart |
+| 2 | Distribution pie chart |
+| 3 | Histogram chart |
+| 4 | MoM variation line chart |
+| 5 | Insights engine with 3 categories |
+| 6 | Profile CRUD + selector + combined view |
+| 7 | Analytics page assembly |
+
+### Phase 3 — Advanced (~1-2 sessions)
+
+| Step | Details |
+|---|---|
+| 1 | Profile comparison page |
+| 2 | Export system (PDF structured, PNG, CSV, individual chart) |
+| 3 | Theme toggle with persistence |
+| 4 | Settings page |
+
+### Phase 4 — New Features (~1-2 sessions)
+
+| Step | Details |
+|---|---|
+| 1 | Platform entity + tags on transactions |
+| 2 | Streak analysis + display |
+| 3 | Goals system (CRUD + tracking + progress UI) |
+| 4 | Dashboard global filters by platform |
+
+### Phase 5 — Social & i18n (~1 session)
+
+| Step | Details |
+|---|---|
+| 1 | Shared reports (create, manage, public page) |
+| 2 | QR code generation |
+| 3 | i18n setup (PT default + EN) |
+| 4 | Onboarding tour for new users |
+
+### Phase 6 — Mobile (~2-3 sessions)
+
+| Step | Details |
+|---|---|
+| 1 | Expo project setup with Expo Router |
+| 2 | NativeWind config + shared tokens |
+| 3 | Auth screens (login, register) |
+| 4 | Dashboard with Victory Native charts |
+| 5 | Transaction list with infinite scroll |
+| 6 | Upload (document picker) |
+| 7 | Profile management |
+| 8 | Settings (theme, language) |
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Supabase Project**: Do you have an existing Supabase project you want to reuse, or should I create configuration for a new one? I'll need the project URL and anon key as environment variables.
+
+> [!IMPORTANT]
+> **Tailwind CSS v4**: You mentioned being open to Tailwind. I've chosen v4 (latest, CSS-first config). It differs significantly from v3 — no `tailwind.config.js`, configuration via CSS `@theme`. Are you comfortable with this, or would you prefer v3 for stability?
+
+> [!IMPORTANT]
+> **Drizzle ORM vs Raw Supabase Client**: I propose Drizzle for type-safe queries + migration management. This adds a build step for schema generation but gives much better type safety. The alternative is using the Supabase JS client directly (closer to your existing code). Which do you prefer?
+
+> [!IMPORTANT]
+> **Mobile Priority**: Phase 6 (mobile) is last. If you want the iPhone app developed earlier or in parallel, I can restructure the plan. What's your priority?
+
+> [!IMPORTANT]  
+> **Domain/Deployment**: Do you have a domain name for this project? The web app will deploy to Vercel. I'll need to know if you want a custom domain configured.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+
+**Unit tests** (Vitest — `pnpm --filter @bettracker/core test`):
+- `calculations/statistics.test.ts` — All KPI calculations with known inputs/outputs from real CSV data
+- `calculations/insights.test.ts` — Insight generator produces correct categories and types
+- `calculations/streaks.test.ts` — Streak detection edge cases
+- `parsers/betano-parser.test.ts` — Parses both CSV files correctly (includes comma decimals, integer values, typo headers)
+- `parsers/parser-factory.test.ts` — Auto-detection selects correct parser
+- `validators/*.test.ts` — Zod schema validation (valid + invalid inputs)
+- `formatters/*.test.ts` — Currency/date formatting in PT locale
+
+**Integration tests** (Vitest — `pnpm --filter @bettracker/database test`):
+- Database queries against test Supabase instance or local Postgres via Docker
+
+**E2E tests** (Playwright — `pnpm --filter web e2e`):
+- Auth flow: register → login → redirect to dashboard
+- Upload CSV → see KPI values match expected calculations
+- Navigate between all pages
+- Theme toggle persists across reload
+- Export buttons trigger downloads
+
+### Manual Verification
+
+1. **Upload both real CSV files** ([transactions_tomasp2005.csv](file:///c:/Users/tomas/bet-tracker/transactions_tomasp2005.csv) and [transactions_silviatomas.csv](file:///c:/Users/tomas/bet-tracker/transactions_silviatomas.csv)) and verify KPI values match hand calculations
+2. **Visual review** of all pages in both dark and light themes at desktop (1920px), tablet (768px), and mobile (375px) widths
+3. **Export PDF/PNG/CSV** and confirm output quality + correct data
+4. **Auth flow** — test register, login, logout, password reset email
+
+> [!NOTE]
+> The test commands above will be finalized during Phase 0 setup when the actual project structure is created. I'll include exact run commands in each phase's implementation.
