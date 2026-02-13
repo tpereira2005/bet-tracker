@@ -1,4 +1,5 @@
-import { Upload, Download, Moon, Sun, Shield } from 'lucide-react';
+import { Download, Moon, Sun, Shield } from 'lucide-react';
+import UploadForm from '@/components/upload-form';
 
 export default function SettingsPage() {
     return (
@@ -23,7 +24,7 @@ export default function SettingsPage() {
                                 color: 'var(--accent)',
                             }}
                         >
-                            <Upload className="w-4 h-4" />
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                         </div>
                         <div>
                             <h3 className="heading-4">Importar Dados</h3>
@@ -32,23 +33,7 @@ export default function SettingsPage() {
                             </p>
                         </div>
                     </div>
-                    <div
-                        className="flex items-center justify-center"
-                        style={{
-                            padding: 'var(--space-xl)',
-                            border: '1px dashed var(--border-strong)',
-                            borderRadius: 'var(--radius-md)',
-                            color: 'var(--text-muted)',
-                            fontSize: '0.875rem',
-                            cursor: 'pointer',
-                            transition: 'border-color 0.2s ease',
-                        }}
-                    >
-                        <div className="text-center">
-                            <Upload className="w-5 h-5 mx-auto mb-2" style={{ opacity: 0.5 }} />
-                            <p>Arrasta o ficheiro CSV ou clica para selecionar</p>
-                        </div>
-                    </div>
+                    <UploadForm />
                 </div>
 
                 {/* Export Section */}
