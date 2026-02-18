@@ -142,7 +142,7 @@ class PatternGenerator implements InsightGenerator {
                 type: 'info',
                 icon: 'mountain',
                 title: 'Melhor Mês',
-                description: `O teu melhor mês foi ${stats.peakMonth.label} com um resultado líquido positivo.`,
+                description: `O teu melhor mês foi ${stats.peakMonth.label} com um resultado líquido de ${stats.peakMonth.net >= 0 ? '+' : ''}${stats.peakMonth.net.toFixed(2)}€.`,
                 priority: 6,
             });
         }

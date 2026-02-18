@@ -59,7 +59,7 @@ export default function DashboardPage() {
             }
         }
         load();
-    }, []);
+    }, [user]);
 
     const stats: Statistics | null = useMemo(
         () => (transactions.length > 0 ? calculateStatistics(transactions) : null),

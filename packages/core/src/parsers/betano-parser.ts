@@ -16,7 +16,7 @@ import {
 export class BetanoParser implements CSVParser {
     readonly name = 'Betano';
 
-    detect(headers: string[]): boolean {
+    detect(headers: string[], _sampleRows?: string[][]): boolean {
         const normalized = headers.map((h) => normalizeHeader(h));
         // Must have at least date, type, and value columns
         return (

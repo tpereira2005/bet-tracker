@@ -98,7 +98,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
                         <button
-                            onClick={signOut}
+                            onClick={() => { void signOut(); }}
                             className="p-2 transition-colors"
                             style={{
                                 borderRadius: 'var(--radius-sm)',

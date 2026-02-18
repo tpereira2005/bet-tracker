@@ -300,6 +300,12 @@ export async function setDefaultProfile(id: string): Promise<boolean> {
 
     if (error) {
         console.error('Error setting default profile:', error);
+        // Attempt to restore the previous default to avoid leaving all profiles without a default
+        await supabase
+            .from('profiles')
+            .update({ is_default: true })
+            .eq('id', id)
+            .eq('user_id', user.id);
         return false;
     }
     return true;

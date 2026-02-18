@@ -50,9 +50,17 @@ export default function UploadForm() {
 
     const selectedProfile = profiles.find((p) => p.id === selectedProfileId);
 
+    const MAX_FILE_SIZE_MB = 10;
+
     const handleFile = useCallback(async (file: File) => {
         if (!file.name.endsWith('.csv')) {
             setErrorMessage('Apenas ficheiros CSV são suportados.');
+            setStep('error');
+            return;
+        }
+
+        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+            setErrorMessage(`O ficheiro é demasiado grande. Tamanho máximo: ${MAX_FILE_SIZE_MB}MB.`);
             setStep('error');
             return;
         }

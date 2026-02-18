@@ -52,11 +52,16 @@ export default function ProfilesPage() {
 
     const loadProfiles = useCallback(async () => {
         const all = await getProfiles();
-        const withStats = await Promise.all(
+        const results = await Promise.allSettled(
             all.map(async (p) => {
                 const stats = await getProfileStats(p.id);
                 return { ...p, transactionCount: stats.count, netResult: stats.net };
             }),
+        );
+        const withStats = results.map((result, i) =>
+            result.status === 'fulfilled'
+                ? result.value
+                : { ...all[i]!, transactionCount: 0, netResult: 0 },
         );
         setProfiles(withStats);
         setLoading(false);
