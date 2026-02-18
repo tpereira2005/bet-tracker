@@ -1,0 +1,45 @@
+# BetTracker — Complete Platform Rebuild
+
+## Phase 0: Foundation & Architecture Planning
+- [/] Research existing codebase and prior work
+- [/] Draft architecture plan (stack, schema, structure, phases)
+- [ ] User approval of architecture plan
+
+## Phase 0: Foundation Setup
+- [ ] Monorepo setup (Turborepo + pnpm workspaces)
+- [ ] TypeScript, ESLint, Prettier configuration
+- [ ] Supabase project setup (schema, migrations, RLS)
+- [ ] Design system base (tokens, typography, colors, grid)
+- [ ] Authentication system (login, register, reset)
+- [ ] GitHub repository structure (README, LICENSE, .gitignore, CI)
+
+## Phase 1: Core Features
+- [ ] CSV upload + multi-format parser
+- [ ] Dashboard with 9 KPIs
+- [ ] Cumulative balance chart
+- [ ] Transaction table with sorting/filtering/pagination
+
+## Phase 2: Analytics
+- [ ] All 5 chart types
+- [ ] Automated insights engine
+- [ ] Profile system (CRUD, selector, combined view)
+
+## Phase 3: Advanced Features
+- [ ] Profile comparison
+- [ ] Export system (PDF, PNG, CSV)
+- [ ] Theme system (dark/light with persistence)
+
+## Phase 4: New Features
+- [ ] Multi-platform support
+- [ ] Streaks & trend predictions
+- [ ] Goals & alerts system
+
+## Phase 5: Social & i18n
+- [ ] Shareable reports with public links
+- [ ] QR code generation
+- [ ] Multi-language (PT/EN)
+
+## Phase 6: Mobile
+- [ ] React Native + Expo iPhone app
+- [ ] Core package reuse
+- [ ] Native-optimized UI

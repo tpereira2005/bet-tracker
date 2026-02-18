@@ -13,6 +13,7 @@ export * from './formatters';
 
 // Parsers
 export { parseCSV, registerParser, getAvailableParsers } from './parsers';
+export { sanitizeValue, normalizeType, parseDate, detectDelimiter, normalizeHeader } from './parsers/types';
 export type { CSVParser } from './parsers';
 
 // Calculations

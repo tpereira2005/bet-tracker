@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Eye, EyeOff, BarChart3, Mail, Lock, AlertCircle, Check, X } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, Check, X } from 'lucide-react';
 
 // Error translations (PT)
 const ERROR_TRANSLATIONS: Record<string, string> = {
@@ -20,14 +20,19 @@ const ERROR_TRANSLATIONS: Record<string, string> = {
 };
 
 function translateError(msg: string): string {
-    return ERROR_TRANSLATIONS[msg] ?? msg;
+    const key = Object.keys(ERROR_TRANSLATIONS).find(
+        (k) => k.toLowerCase() === msg.toLowerCase()
+    );
+    return key ? ERROR_TRANSLATIONS[key]! : msg;
 }
 
 type AuthMode = 'login' | 'register' | 'reset';
 
 export default function AuthPage() {
     const router = useRouter();
-    const [mode, setMode] = useState<AuthMode>('login');
+    const searchParams = useSearchParams();
+    const initialMode = (searchParams.get('mode') === 'register' ? 'register' : 'login') as AuthMode;
+    const [mode, setMode] = useState<AuthMode>(initialMode);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -59,14 +64,14 @@ export default function AuthPage() {
                     setLoading(false);
                     return;
                 }
-                if (passwordStrength.level === 'weak') {
-                    setError('A password é demasiado fraca. Usa pelo menos 8 caracteres com letras e números.');
-                    setLoading(false);
-                    return;
-                }
-                const { error: err } = await supabase.auth.signUp({ email, password });
+                const { data, error: err } = await supabase.auth.signUp({ email, password });
                 if (err) throw err;
-                setSuccess('Conta criada! Verifica o teu email para confirmar o registo.');
+                // If email confirmation is disabled, Supabase returns a session immediately
+                if (data.session) {
+                    router.push('/dashboard');
+                } else {
+                    setSuccess('Conta criada! Verifica o teu email para confirmar o registo.');
+                }
             } else if (mode === 'reset') {
                 const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
                     redirectTo: `${window.location.origin}/auth/reset-password`,
@@ -83,22 +88,47 @@ export default function AuthPage() {
     }
 
     return (
-        <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg-primary)] px-4 py-12">
-            <div className="w-full max-w-md">
+        <div
+            className="min-h-dvh flex items-center justify-center px-4 py-12 relative overflow-hidden"
+            style={{ backgroundColor: 'var(--bg-primary)' }}
+        >
+            {/* Decorative glow */}
+            <div
+                className="glow-orb"
+                style={{
+                    width: '500px',
+                    height: '500px',
+                    top: '-100px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'var(--accent)',
+                    opacity: 0.04,
+                }}
+            />
+
+            <div className="w-full max-w-md relative z-10">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-3 mb-6">
-                        <div className="w-11 h-11 rounded-xl gradient-brand-bg flex items-center justify-center">
-                            <BarChart3 className="w-6 h-6 text-white" />
-                        </div>
-                        <span className="text-2xl font-bold gradient-brand">BetTracker</span>
+                    <div className="inline-flex items-center gap-2.5 mb-6">
+                        <Image src="/logo.png" alt="BetTracker" width={36} height={36} />
+                        <span
+                            style={{
+                                fontFamily: 'var(--font-heading), Instrument Serif, serif',
+                                fontSize: '1.5rem',
+                                color: 'var(--text-primary)',
+                                transform: 'translateY(1px)',
+                                display: 'inline-block',
+                            }}
+                        >
+                            BetTracker
+                        </span>
                     </div>
-                    <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">
+                    <h1 className="heading-2">
                         {mode === 'login' && 'Bem-vindo de volta'}
                         {mode === 'register' && 'Cria a tua conta'}
                         {mode === 'reset' && 'Recuperar password'}
                     </h1>
-                    <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+                    <p className="body-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
                         {mode === 'login' && 'Entra na tua conta para continuar'}
                         {mode === 'register' && 'Começa a analisar as tuas apostas'}
                         {mode === 'reset' && 'Vamos enviar-te um link de recuperação'}
@@ -106,15 +136,18 @@ export default function AuthPage() {
                 </div>
 
                 {/* Form Card */}
-                <div className="p-8 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border)] shadow-[var(--shadow-elevated)]">
+                <div className="card" style={{ padding: 'var(--space-xl)', borderRadius: 'var(--radius-xl)' }}>
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Email */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1.5">
+                            <label htmlFor="email" className="label block mb-2">
                                 Email
                             </label>
                             <div className="relative">
-                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-tertiary)]" />
+                                <Mail
+                                    className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4"
+                                    style={{ color: 'var(--text-muted)' }}
+                                />
                                 <input
                                     id="email"
                                     type="email"
@@ -122,7 +155,8 @@ export default function AuthPage() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
                                     placeholder="o-teu@email.com"
-                                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-[var(--color-bg-input)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:border-[var(--color-border-focus)] focus:outline-none transition-colors text-sm"
+                                    className="input"
+                                    style={{ paddingLeft: '44px' }}
                                 />
                             </div>
                         </div>
@@ -130,11 +164,14 @@ export default function AuthPage() {
                         {/* Password */}
                         {mode !== 'reset' && (
                             <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1.5">
+                                <label htmlFor="password" className="label block mb-2">
                                     Password
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-tertiary)]" />
+                                    <Lock
+                                        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4"
+                                        style={{ color: 'var(--text-muted)' }}
+                                    />
                                     <input
                                         id="password"
                                         type={showPassword ? 'text' : 'password'}
@@ -142,12 +179,14 @@ export default function AuthPage() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
                                         placeholder="••••••••"
-                                        className="w-full pl-11 pr-12 py-3 rounded-xl bg-[var(--color-bg-input)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:border-[var(--color-border-focus)] focus:outline-none transition-colors text-sm"
+                                        className="input"
+                                        style={{ paddingLeft: '44px', paddingRight: '48px' }}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors"
+                                        className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors"
+                                        style={{ color: 'var(--text-muted)' }}
                                         aria-label={showPassword ? 'Esconder password' : 'Mostrar password'}
                                     >
                                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -161,14 +200,21 @@ export default function AuthPage() {
                                             {[1, 2, 3].map((step) => (
                                                 <div
                                                     key={step}
-                                                    className={`h-1 flex-1 rounded-full transition-colors ${step <= passwordStrength.score
-                                                        ? passwordStrength.color
-                                                        : 'bg-[var(--color-bg-elevated)]'
-                                                        }`}
+                                                    className="h-1 flex-1 transition-colors"
+                                                    style={{
+                                                        borderRadius: 'var(--radius-full)',
+                                                        backgroundColor:
+                                                            step <= passwordStrength.score
+                                                                ? passwordStrength.color
+                                                                : 'var(--bg-elevated)',
+                                                    }}
                                                 />
                                             ))}
                                         </div>
-                                        <p className={`text-xs ${passwordStrength.textColor}`}>
+                                        <p
+                                            className="text-xs"
+                                            style={{ color: passwordStrength.textColor }}
+                                        >
                                             {passwordStrength.label}
                                         </p>
                                     </div>
@@ -179,11 +225,14 @@ export default function AuthPage() {
                         {/* Confirm Password */}
                         {mode === 'register' && (
                             <div>
-                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1.5">
+                                <label htmlFor="confirmPassword" className="label block mb-2">
                                     Confirmar Password
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-tertiary)]" />
+                                    <Lock
+                                        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4"
+                                        style={{ color: 'var(--text-muted)' }}
+                                    />
                                     <input
                                         id="confirmPassword"
                                         type={showPassword ? 'text' : 'password'}
@@ -191,11 +240,12 @@ export default function AuthPage() {
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
                                         placeholder="••••••••"
-                                        className="w-full pl-11 pr-12 py-3 rounded-xl bg-[var(--color-bg-input)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:border-[var(--color-border-focus)] focus:outline-none transition-colors text-sm"
+                                        className="input"
+                                        style={{ paddingLeft: '44px', paddingRight: '48px' }}
                                     />
                                     <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                                        {passwordsMatch && <Check className="w-4 h-4 text-[var(--color-accent-emerald)]" />}
-                                        {passwordsMismatch && <X className="w-4 h-4 text-[var(--color-accent-rose)]" />}
+                                        {passwordsMatch && <Check className="w-4 h-4" style={{ color: 'var(--positive)' }} />}
+                                        {passwordsMismatch && <X className="w-4 h-4" style={{ color: 'var(--negative)' }} />}
                                     </div>
                                 </div>
                             </div>
@@ -203,7 +253,14 @@ export default function AuthPage() {
 
                         {/* Error */}
                         {error && (
-                            <div className="flex items-start gap-2 p-3.5 rounded-xl bg-[var(--color-accent-rose-subtle)] text-[var(--color-accent-rose)] text-sm">
+                            <div
+                                className="flex items-start gap-2 p-3.5 text-sm"
+                                style={{
+                                    borderRadius: 'var(--radius-md)',
+                                    backgroundColor: 'var(--negative-subtle)',
+                                    color: 'var(--negative)',
+                                }}
+                            >
                                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                                 <span>{error}</span>
                             </div>
@@ -211,7 +268,14 @@ export default function AuthPage() {
 
                         {/* Success */}
                         {success && (
-                            <div className="flex items-start gap-2 p-3.5 rounded-xl bg-[var(--color-accent-emerald-subtle)] text-[var(--color-accent-emerald)] text-sm">
+                            <div
+                                className="flex items-start gap-2 p-3.5 text-sm"
+                                style={{
+                                    borderRadius: 'var(--radius-md)',
+                                    backgroundColor: 'var(--positive-subtle)',
+                                    color: 'var(--positive)',
+                                }}
+                            >
                                 <Check className="w-4 h-4 shrink-0 mt-0.5" />
                                 <span>{success}</span>
                             </div>
@@ -221,11 +285,15 @@ export default function AuthPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3 rounded-xl gradient-brand-bg text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="btn btn-accent w-full"
+                            style={{ padding: '14px' }}
                         >
                             {loading ? (
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span
+                                        className="w-4 h-4 border-2 rounded-full animate-spin"
+                                        style={{ borderColor: 'rgba(255,255,255,0.3)', borderTopColor: 'white' }}
+                                    />
                                     A processar...
                                 </span>
                             ) : (
@@ -239,20 +307,22 @@ export default function AuthPage() {
                     </form>
 
                     {/* Mode switches */}
-                    <div className="mt-6 pt-6 border-t border-[var(--color-border)] text-center text-sm">
+                    <div className="mt-6 pt-6 text-center text-sm" style={{ borderTop: '1px solid var(--border)' }}>
                         {mode === 'login' && (
                             <>
                                 <button
                                     onClick={() => { setMode('reset'); setError(''); setSuccess(''); }}
-                                    className="text-[var(--color-accent-violet)] hover:underline"
+                                    style={{ color: 'var(--accent)' }}
+                                    className="hover:underline"
                                 >
                                     Esqueci a password
                                 </button>
-                                <p className="mt-3 text-[var(--color-text-secondary)]">
+                                <p className="mt-3" style={{ color: 'var(--text-secondary)' }}>
                                     Não tens conta?{' '}
                                     <button
                                         onClick={() => { setMode('register'); setError(''); setSuccess(''); }}
-                                        className="text-[var(--color-accent-violet)] hover:underline font-medium"
+                                        style={{ color: 'var(--accent)' }}
+                                        className="hover:underline font-medium"
                                     >
                                         Regista-te
                                     </button>
@@ -260,22 +330,24 @@ export default function AuthPage() {
                             </>
                         )}
                         {mode === 'register' && (
-                            <p className="text-[var(--color-text-secondary)]">
+                            <p style={{ color: 'var(--text-secondary)' }}>
                                 Já tens conta?{' '}
                                 <button
                                     onClick={() => { setMode('login'); setError(''); setSuccess(''); }}
-                                    className="text-[var(--color-accent-violet)] hover:underline font-medium"
+                                    style={{ color: 'var(--accent)' }}
+                                    className="hover:underline font-medium"
                                 >
                                     Entrar
                                 </button>
                             </p>
                         )}
                         {mode === 'reset' && (
-                            <p className="text-[var(--color-text-secondary)]">
+                            <p style={{ color: 'var(--text-secondary)' }}>
                                 Lembras-te da password?{' '}
                                 <button
                                     onClick={() => { setMode('login'); setError(''); setSuccess(''); }}
-                                    className="text-[var(--color-accent-violet)] hover:underline font-medium"
+                                    style={{ color: 'var(--accent)' }}
+                                    className="hover:underline font-medium"
                                 >
                                     Voltar ao login
                                 </button>
@@ -286,7 +358,7 @@ export default function AuthPage() {
 
                 {/* Privacy notice */}
                 <div className="mt-6 text-center">
-                    <p className="text-xs text-[var(--color-text-tertiary)]">
+                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                         🔒 Os teus dados estão seguros e encriptados. Nunca partilhamos informação com terceiros.
                     </p>
                 </div>
@@ -314,8 +386,8 @@ function getPasswordStrength(password: string): PasswordStrengthResult {
     if (/[^A-Za-z0-9]/.test(password)) score++;
 
     if (score <= 2)
-        return { level: 'weak', score: 1, label: 'Fraca', color: 'bg-[var(--color-accent-rose)]', textColor: 'text-[var(--color-accent-rose)]' };
+        return { level: 'weak', score: 1, label: 'Fraca', color: 'var(--negative)', textColor: 'var(--negative)' };
     if (score <= 3)
-        return { level: 'medium', score: 2, label: 'Média', color: 'bg-[var(--color-accent-amber)]', textColor: 'text-[var(--color-accent-amber)]' };
-    return { level: 'strong', score: 3, label: 'Forte', color: 'bg-[var(--color-accent-emerald)]', textColor: 'text-[var(--color-accent-emerald)]' };
+        return { level: 'medium', score: 2, label: 'Média', color: 'var(--warning)', textColor: 'var(--warning)' };
+    return { level: 'strong', score: 3, label: 'Forte', color: 'var(--positive)', textColor: 'var(--positive)' };
 }

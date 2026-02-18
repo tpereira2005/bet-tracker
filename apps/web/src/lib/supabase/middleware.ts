@@ -38,9 +38,13 @@ export async function updateSession(request: NextRequest) {
     );
 
     // Refresh session — this is important for Server Components
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    let user = null;
+    try {
+        const { data } = await supabase.auth.getUser();
+        user = data.user;
+    } catch {
+        // If getUser fails, treat as unauthenticated
+    }
 
     // Protect authenticated routes
     const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');

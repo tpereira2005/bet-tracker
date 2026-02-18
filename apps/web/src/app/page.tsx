@@ -1,9 +1,9 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
     BarChart3,
     TrendingUp,
     Shield,
-    Smartphone,
     ArrowRight,
     Zap,
     ChartPie,
@@ -12,27 +12,54 @@ import {
 
 export default function LandingPage() {
     return (
-        <div className="min-h-dvh bg-[var(--color-bg-primary)]">
+        <div className="min-h-dvh relative overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
+            {/* Decorative glow orbs */}
+            <div
+                className="glow-orb"
+                style={{
+                    width: '600px',
+                    height: '600px',
+                    top: '-200px',
+                    right: '10%',
+                    background: 'var(--accent)',
+                    opacity: 0.05,
+                }}
+            />
+            <div
+                className="glow-orb"
+                style={{
+                    width: '400px',
+                    height: '400px',
+                    top: '50%',
+                    left: '-100px',
+                    background: '#38BDF8',
+                    opacity: 0.03,
+                }}
+            />
+
             {/* Navigation */}
             <nav className="fixed top-0 left-0 right-0 z-50 glass">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg gradient-brand-bg flex items-center justify-center">
-                            <BarChart3 className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-xl font-bold gradient-brand">BetTracker</span>
-                    </div>
+                <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <Link
+                        href="/"
+                        className="flex items-center gap-2.5 text-lg tracking-tight"
+                        style={{
+                            fontFamily: 'var(--font-heading), Instrument Serif, serif',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        <Image src="/logo.png" alt="BetTracker" width={28} height={28} />
+                        <span style={{ transform: 'translateY(1px)' }}>BetTracker</span>
+                    </Link>
                     <div className="flex items-center gap-4">
                         <Link
                             href="/auth/login"
-                            className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+                            className="btn btn-ghost btn-sm"
                         >
                             Entrar
                         </Link>
-                        <Link
-                            href="/auth/register"
-                            className="px-5 py-2.5 rounded-lg gradient-brand-bg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-                        >
+                        <Link href="/auth/login?mode=register" className="btn btn-primary btn-sm">
                             Começar Grátis
                         </Link>
                     </div>
@@ -40,127 +67,157 @@ export default function LandingPage() {
             </nav>
 
             {/* Hero */}
-            <section className="pt-32 pb-20 px-6">
-                <div className="max-w-4xl mx-auto text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--color-accent-violet-subtle)] text-[var(--color-accent-violet)] text-sm font-medium mb-8">
-                        <Zap className="w-4 h-4" />
+            <section className="relative pt-36 sm:pt-44 px-6" style={{ paddingBottom: 'var(--space-4xl)' }}>
+                <div className="max-w-5xl mx-auto text-center">
+                    {/* Pill tag */}
+                    <div className="pill mb-8 mx-auto" style={{ width: 'fit-content' }}>
                         Plataforma de Análise Profissional
                     </div>
 
-                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight mb-6">
-                        Controla as tuas{' '}
-                        <span className="gradient-brand">apostas</span>{' '}
-                        como um profissional
+                    <h1 className="heading-hero mb-6 mx-auto" style={{ maxWidth: '780px' }}>
+                        Controla as tuas apostas como um profissional.
                     </h1>
 
-                    <p className="text-lg sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed">
-                        Analisa depósitos, levantamentos, ROI e tendências. Insights automáticos,
-                        gráficos interativos e relatórios que te ajudam a tomar melhores decisões.
+                    <p
+                        className="body-lg mx-auto mb-10"
+                        style={{ color: 'var(--text-secondary)', maxWidth: '520px' }}
+                    >
+                        Analisa depósitos, levantamentos, ROI e tendências.
+                        Insights automáticos e gráficos que te ajudam a tomar melhores decisões.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                         <Link
-                            href="/auth/register"
-                            className="group flex items-center gap-2 px-8 py-3.5 rounded-xl gradient-brand-bg text-white font-semibold text-base hover:opacity-90 transition-all hover:shadow-[var(--shadow-glow-violet)]"
+                            href="/auth/login?mode=register"
+                            className="btn btn-accent btn-lg group"
                         >
                             Criar Conta Grátis
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                         </Link>
-                        <Link
-                            href="/auth/login"
-                            className="flex items-center gap-2 px-8 py-3.5 rounded-xl border border-[var(--color-border)] text-[var(--color-text-primary)] font-semibold text-base hover:bg-[var(--color-bg-card)] transition-colors"
-                        >
+                        <Link href="/auth/login" className="btn btn-outlined btn-lg">
                             Já tenho conta
                         </Link>
                     </div>
                 </div>
             </section>
 
-            {/* Features Grid */}
-            <section className="py-20 px-6">
-                <div className="max-w-6xl mx-auto">
+            {/* Stats Row */}
+            <section className="relative px-6" style={{ paddingTop: 'var(--space-3xl)', paddingBottom: 'var(--space-3xl)' }}>
+                <div className="max-w-4xl mx-auto">
+                    <div className="grid grid-cols-3 gap-0">
+                        <StatBlock number="9" label="KPIs em tempo real" />
+                        <StatBlock number="5" label="Gráficos interativos" />
+                        <StatBlock number="∞" label="Transações por perfil" />
+                    </div>
+                </div>
+            </section>
+
+            {/* Features */}
+            <section className="relative px-6" style={{ paddingTop: 'var(--space-4xl)', paddingBottom: 'var(--space-4xl)' }}>
+                <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                            Tudo o que precisas, num só lugar
+                        <div className="flex items-center justify-center gap-4 mb-6">
+                            <div style={{ width: '32px', height: '1px', background: 'var(--accent)' }} />
+                            <p className="label" style={{ color: 'var(--accent)', fontSize: '0.8125rem' }}>Funcionalidades</p>
+                            <div style={{ width: '32px', height: '1px', background: 'var(--accent)' }} />
+                        </div>
+                        <h2 className="heading-1">
+                            Tudo o que precisas,<br />num só lugar.
                         </h2>
-                        <p className="text-[var(--color-text-secondary)] text-lg max-w-xl mx-auto">
-                            Ferramentas profissionais para analisar e otimizar o teu desempenho.
-                        </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <FeatureCard
-                            icon={<TrendingUp className="w-6 h-6" />}
+                            icon={<TrendingUp className="w-5 h-5" />}
                             title="Dashboard Completo"
                             description="9 KPIs essenciais: resultado líquido, ROI, win rate, tendências e muito mais."
-                            color="violet"
                         />
                         <FeatureCard
-                            icon={<BarChart3 className="w-6 h-6" />}
+                            icon={<BarChart3 className="w-5 h-5" />}
                             title="5 Tipos de Gráficos"
                             description="Balanço cumulativo, resultados mensais, distribuição, histograma e variação MoM."
-                            color="emerald"
                         />
                         <FeatureCard
-                            icon={<Zap className="w-6 h-6" />}
+                            icon={<Zap className="w-5 h-5" />}
                             title="Insights Automáticos"
                             description="Análise inteligente que identifica padrões, performance e gera recomendações."
-                            color="amber"
                         />
                         <FeatureCard
-                            icon={<Upload className="w-6 h-6" />}
+                            icon={<Upload className="w-5 h-5" />}
                             title="Upload Simples"
                             description="Importa o teu CSV e vê os dados instantaneamente. Suporte para múltiplos formatos."
-                            color="sky"
                         />
                         <FeatureCard
-                            icon={<ChartPie className="w-6 h-6" />}
+                            icon={<ChartPie className="w-5 h-5" />}
                             title="Múltiplos Perfis"
                             description="Gere várias contas, compara perfis lado a lado e vê dados combinados."
-                            color="rose"
                         />
                         <FeatureCard
-                            icon={<Shield className="w-6 h-6" />}
+                            icon={<Shield className="w-5 h-5" />}
                             title="Seguro e Privado"
                             description="Dados encriptados, autenticação segura e controlo total sobre a tua informação."
-                            color="violet"
                         />
                     </div>
                 </div>
             </section>
 
             {/* CTA */}
-            <section className="py-20 px-6">
-                <div className="max-w-3xl mx-auto text-center">
-                    <div className="p-12 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border)] shadow-[var(--shadow-elevated)]">
-                        <Smartphone className="w-12 h-12 mx-auto mb-6 text-[var(--color-accent-violet)]" />
-                        <h2 className="text-3xl font-bold mb-4">Pronto para começar?</h2>
-                        <p className="text-[var(--color-text-secondary)] mb-8 text-lg">
+            <section className="relative px-6" style={{ paddingTop: 'var(--space-3xl)', paddingBottom: 'var(--space-4xl)' }}>
+                <div className="max-w-3xl mx-auto">
+                    <div className="cta-card text-center" style={{ padding: 'clamp(48px, 6vw, 80px) clamp(24px, 4vw, 56px)' }}>
+                        <h2 className="heading-1 mb-4" style={{ position: 'relative' }}>
+                            Pronto para começar?
+                        </h2>
+                        <p className="body-lg mb-10" style={{ color: 'var(--text-secondary)', position: 'relative' }}>
                             Cria a tua conta gratuita e começa a analisar as tuas apostas em segundos.
                         </p>
-                        <Link
-                            href="/auth/register"
-                            className="inline-flex items-center gap-2 px-10 py-4 rounded-xl gradient-brand-bg text-white font-semibold text-lg hover:opacity-90 transition-all hover:shadow-[var(--shadow-glow-violet)]"
-                        >
-                            Começar Agora
-                            <ArrowRight className="w-5 h-5" />
-                        </Link>
+                        <div style={{ position: 'relative' }}>
+                            <Link href="/auth/login?mode=register" className="btn btn-accent btn-lg">
+                                Começar Agora
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="py-8 px-6 border-t border-[var(--color-border)]">
-                <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-[var(--color-text-secondary)] text-sm">
-                        <BarChart3 className="w-4 h-4" />
-                        <span>BetTracker © {new Date().getFullYear()}</span>
-                    </div>
-                    <p className="text-[var(--color-text-tertiary)] text-sm">
-                        Feito com dedicação 🇵🇹
-                    </p>
+            <footer
+                className="relative px-6"
+                style={{
+                    paddingTop: 'var(--space-lg)',
+                    paddingBottom: 'var(--space-lg)',
+                    borderTop: '1px solid var(--border)',
+                }}
+            >
+                <div className="max-w-6xl mx-auto flex items-center justify-between">
+                    <span
+                        className="text-sm"
+                        style={{
+                            fontFamily: 'var(--font-heading), Instrument Serif, serif',
+                            color: 'var(--text-muted)',
+                        }}
+                    >
+                        BetTracker
+                    </span>
+                    <span className="body-sm" style={{ color: 'var(--text-muted)' }}>
+                        © {new Date().getFullYear()} · Feito com dedicação em Portugal
+                    </span>
                 </div>
             </footer>
+        </div>
+    );
+}
+
+/* ── Sub-components ── */
+
+function StatBlock({ number, label }: { number: string; label: string }) {
+    return (
+        <div className="stat-block" style={{ padding: 'var(--space-lg) var(--space-md)' }}>
+            <div className="number-hero mb-3" style={{ color: 'var(--text-primary)' }}>
+                {number}
+            </div>
+            <p className="label">{label}</p>
         </div>
     );
 }
@@ -169,30 +226,32 @@ function FeatureCard({
     icon,
     title,
     description,
-    color,
 }: {
     icon: React.ReactNode;
     title: string;
     description: string;
-    color: 'violet' | 'emerald' | 'amber' | 'sky' | 'rose';
 }) {
-    const colorClasses = {
-        violet: 'bg-[var(--color-accent-violet-subtle)] text-[var(--color-accent-violet)]',
-        emerald: 'bg-[var(--color-accent-emerald-subtle)] text-[var(--color-accent-emerald)]',
-        amber: 'bg-[var(--color-accent-amber-subtle)] text-[var(--color-accent-amber)]',
-        sky: 'bg-[var(--color-accent-sky-subtle)] text-[var(--color-accent-sky)]',
-        rose: 'bg-[var(--color-accent-rose-subtle)] text-[var(--color-accent-rose)]',
-    };
-
     return (
-        <div className="group p-6 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-border-hover)] hover:shadow-[var(--shadow-elevated)] transition-all duration-300">
+        <div
+            className="feature-card"
+            style={{ padding: 'var(--space-lg)' }}
+        >
             <div
-                className={`w-12 h-12 rounded-lg ${colorClasses[color]} flex items-center justify-center mb-4`}
+                className="flex items-center justify-center mb-5"
+                style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'var(--accent-subtle)',
+                    color: 'var(--accent)',
+                }}
             >
                 {icon}
             </div>
-            <h3 className="text-lg font-semibold mb-2">{title}</h3>
-            <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{description}</p>
+            <h3 className="heading-4 mb-2">{title}</h3>
+            <p className="body-sm" style={{ color: 'var(--text-secondary)' }}>
+                {description}
+            </p>
         </div>
     );
 }

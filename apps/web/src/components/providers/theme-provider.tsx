@@ -15,16 +15,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const stored = localStorage.getItem('bettracker-theme') as Theme | null;
-        if (stored) {
-            setTheme(stored);
-            document.documentElement.setAttribute('data-theme', stored);
-        } else {
-            // Detect system preference
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const initialTheme: Theme = prefersDark ? 'dark' : 'light';
-            setTheme(initialTheme);
-            document.documentElement.setAttribute('data-theme', initialTheme);
-        }
+        const initialTheme: Theme = stored || 'dark';
+        setTheme(initialTheme);
+        document.documentElement.setAttribute('data-theme', initialTheme);
     }, []);
 
     const toggleTheme = () => {
